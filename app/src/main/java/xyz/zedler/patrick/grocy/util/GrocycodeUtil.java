@@ -38,6 +38,7 @@ public class GrocycodeUtil {
     public static final String TYPE_PRODUCTS = "p";
     public static final String TYPE_BATTERIES = "b";
     public static final String TYPE_CHORES = "c";
+    public static final String TYPE_LOCATIONS = "l";
     private final String entityIdentifier;
     private final int objectIdentifier;
     private final String[] additionalData;
@@ -57,6 +58,10 @@ public class GrocycodeUtil {
 
     public boolean isProduct() {
       return entityIdentifier.equals(TYPE_PRODUCTS);
+    }
+
+    public boolean isLocation() {
+      return entityIdentifier.equals(TYPE_LOCATIONS);
     }
 
     public String getProductStockEntryId() {

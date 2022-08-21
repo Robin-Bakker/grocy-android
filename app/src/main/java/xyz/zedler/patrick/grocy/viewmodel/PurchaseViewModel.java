@@ -405,7 +405,7 @@ public class PurchaseViewModel extends BaseViewModel {
       formData.getShowStoreSection().setValue(store != null || !stores.isEmpty());
 
       // location
-      if (isFeatureEnabled(PREF.FEATURE_STOCK_LOCATION_TRACKING)) {
+      if (isFeatureEnabled(PREF.FEATURE_STOCK_LOCATION_TRACKING) && formData.getLocationLive().getValue() == null) {
         formData.getLocationLive().setValue(productDetails.getLocation());
       }
 
@@ -508,6 +508,14 @@ public class PurchaseViewModel extends BaseViewModel {
   }
 
   public void onBarcodeRecognized(String barcode) {
+    Grocycode grocycode = GrocycodeUtil.getGrocycode(barcode);
+    if (grocycode != null && grocycode.isLocation()) {
+      Location codeLocation = Location.getFromId(locations, grocycode.getObjectId());
+      showMessageAndContinueScanning(R.string.msg_scanned_location);
+      formData.getLocationLive().setValue(codeLocation);
+      return;
+    }
+
     if (formData.getProductDetailsLive().getValue() != null) {
       if (ProductBarcode.getFromBarcode(barcodes, barcode) == null) {
         formData.getBarcodeLive().setValue(barcode);
@@ -516,15 +524,15 @@ public class PurchaseViewModel extends BaseViewModel {
       }
       return;
     }
+
     Product product = null;
-    Grocycode grocycode = GrocycodeUtil.getGrocycode(barcode);
     if (grocycode != null && grocycode.isProduct()) {
       product = productHashMap.get(grocycode.getObjectId());
       if (product == null) {
         showMessageAndContinueScanning(R.string.msg_not_found);
         return;
       }
-    } else if (grocycode != null) {
+    } else if (grocycode != null && !grocycode.isLocation()) {
       showMessageAndContinueScanning(R.string.error_wrong_grocycode_type);
       return;
     }
